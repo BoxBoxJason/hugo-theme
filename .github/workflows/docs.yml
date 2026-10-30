@@ -88,6 +88,7 @@ jobs:
           args: >-
             --no-progress
             --include-fragments
+            --index-files index.html
             ${{ inputs.check-external-links && '--max-retries 3 --accept 200,429' || '--offline' }}
             --root-dir ${{ runner.temp }}/public-check
             '${{ runner.temp }}/public-check/**/*.html'

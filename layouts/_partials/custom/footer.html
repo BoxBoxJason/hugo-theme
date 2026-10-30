@@ -1,0 +1,14 @@
+{{- $brand := site.Params.brand -}}
+<div class="hx:flex hx:flex-col hx:items-center hx:gap-1 hx:py-8 hx:text-sm hx:sm:flex-row hx:sm:justify-between">
+  <span>
+    &copy; {{ now.Year }}
+    <a href="{{ $brand.homeURL }}" rel="noopener">{{ $brand.name }}</a>
+  </span>
+  <span>
+    {{ with site.Params.editURL.base }}
+      <a href="{{ . | replaceRE "/edit/([^/]+)/.*$" "" }}" rel="noopener">Source</a> &middot;
+    {{ end }}
+    Built with <a href="https://gohugo.io" rel="noopener">Hugo</a> and
+    <a href="https://github.com/imfing/hextra" rel="noopener">Hextra</a>
+  </span>
+</div>

@@ -1,0 +1,31 @@
+/*
+ * Brand identity shared by every documentation site.
+ * Change the values below once, and all sites follow on their next theme update.
+ */
+:root {
+  --primary-hue: 250deg;
+  --primary-saturation: 78%;
+  --primary-lightness: 52%;
+}
+
+.dark {
+  --primary-hue: 250deg;
+  --primary-saturation: 90%;
+  --primary-lightness: 66%;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+.hextra-custom-footer a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

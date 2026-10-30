@@ -1,0 +1,119 @@
+# Reusable workflow that builds, checks and deploys a documentation site using this theme.
+# Every site calls it, so the toolchain and the checks are identical everywhere.
+#
+# Call it from a repository like this (the caller grants the deploy permissions):
+#
+#   jobs:
+#     docs:
+#       permissions:
+#         contents: read
+#         pages: write
+#         id-token: write
+#       uses: boxboxjason/hugo-theme/.github/workflows/docs.yml@<commit sha>
+#       with:
+#         deploy: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+name: docs
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Directory of the Hugo site, relative to the repository root.
+        type: string
+        default: docs
+      deploy:
+        description: Publish the site to GitHub Pages (the repository Pages source must be "GitHub Actions").
+        type: boolean
+        default: false
+      check-external-links:
+        description: Also check the links pointing outside of the site (slow, and sensitive to third-party outages).
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  # Bump HUGO_VERSION and HUGO_SHA256 together, the checksum is read from the
+  # hugo_<version>_checksums.txt file of the release (hugo_extended_<version>_linux-amd64.tar.gz line).
+  HUGO_VERSION: "0.169.0"
+  HUGO_SHA256: c41672a0725d307758a132bc94a962e59760eb33f9ba08c991b81f9881d6fa7d
+
+jobs:
+  build:
+    name: Build and check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Hugo derives the "last updated" date of each page from the git history.
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Hugo modules (this theme, and Hextra) are fetched with the Go toolchain and
+      # verified against go.sum, which the site commits.
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: ${{ inputs.working-directory }}/go.mod
+          cache: false
+
+      - name: Install Hugo
+        run: |
+          archive="hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          curl --fail --silent --show-error --location --output "${RUNNER_TEMP}/${archive}" \
+            "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${archive}"
+          echo "${HUGO_SHA256}  ${RUNNER_TEMP}/${archive}" | sha256sum --check --strict
+          sudo tar --extract --gzip --file "${RUNNER_TEMP}/${archive}" --directory /usr/local/bin hugo
+          hugo version
+
+      - name: Build the site
+        run: >-
+          hugo --source "${{ inputs.working-directory }}"
+          --gc --minify --panicOnWarning
+          --destination "${RUNNER_TEMP}/public"
+
+      # The published site lives under a sub path (/<repository>/), which link checkers
+      # cannot resolve from the file system: build a second copy served from the root.
+      - name: Build the site for link checking
+        run: >-
+          hugo --source "${{ inputs.working-directory }}"
+          --gc --minify --panicOnWarning
+          --baseURL /
+          --destination "${RUNNER_TEMP}/public-check"
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          fail: true
+          args: >-
+            --no-progress
+            --include-fragments
+            ${{ inputs.check-external-links && '--max-retries 3 --accept 200,429' || '--offline' }}
+            --root-dir ${{ runner.temp }}/public-check
+            '${{ runner.temp }}/public-check/**/*.html'
+
+      - name: Upload the site
+        if: inputs.deploy
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: ${{ runner.temp }}/public
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: inputs.deploy
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    # Never cancel a deployment halfway: let it finish, the next one queues behind it.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

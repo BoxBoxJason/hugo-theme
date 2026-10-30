@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":gomod",
+    ":semanticCommits",
+    ":semanticCommitScope(deps)",
+    ":semanticCommitType(chore)",
+    "group:all"
+  ],
+  "minimumReleaseAge": "7 days",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Hugo version of the reusable docs workflow. HUGO_SHA256 must be bumped by hand with it, so that an update fails loudly until it is.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/docs\\.yml$/"
+      ],
+      "matchStrings": [
+        "HUGO_VERSION: \"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "gohugoio/hugo",
+      "datasourceTemplate": "github-releases"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Social card</title>
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; }
+  body {
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-sizing: border-box; padding: 72px 80px;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #fff; background: linear-gradient(135deg, #3b2bb8 0%, #5b4be0 55%, #7c6cf0 100%);
+  }
+  .brand { display: flex; align-items: center; gap: 20px; font-size: 30px; opacity: .9; }
+  .brand svg { width: 64px; height: 64px; }
+  h1 { margin: 0 0 20px; font-size: 84px; line-height: 1.05; letter-spacing: -1.5px; }
+  p { margin: 0; font-size: 36px; line-height: 1.35; max-width: 980px; opacity: .92; }
+  .url { font-size: 26px; opacity: .8; }
+</style>
+</head>
+<body>
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="#fff" fill-opacity=".16"/>
+      <path d="M18 22h22a8 8 0 0 1 0 16H26" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M26 31l-8 7 8 7" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span id="brand">BoxBoxJason</span>
+  </div>
+  <div>
+    <h1 id="title">Title</h1>
+    <p id="tagline">Tagline</p>
+  </div>
+  <div class="url" id="url"></div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    for (const id of ["title", "tagline", "url", "brand"]) {
+      if (q.has(id)) document.getElementById(id).textContent = q.get(id);
+    }
+  </script>
+</body>
+</html>

@@ -11,6 +11,9 @@ It is a [Hugo module](https://gohugo.io/hugo-modules/) wrapping [Hextra](https:/
 | Favicon | [`static/favicon.svg`](static/favicon.svg) |
 | Shared defaults (search, navbar, edit links, ...) | [`hugo.toml`](hugo.toml) |
 | `spacer` shortcode | [`layouts/_shortcodes/spacer.html`](layouts/_shortcodes/spacer.html) |
+| Structured data (JSON-LD), Search Console verification | [`layouts/_partials/seo/jsonld.html`](layouts/_partials/seo/jsonld.html), [`layouts/_partials/custom/head-end.html`](layouts/_partials/custom/head-end.html) |
+| `robots.txt` with the sitemap | [`layouts/robots.txt`](layouts/robots.txt) |
+| Social preview card | [`tools/social-card.html`](tools/social-card.html), [`tools/social-card.mjs`](tools/social-card.mjs), default [`static/images/social-default.png`](static/images/social-default.png) |
 | Build, link check and deploy | [`.github/workflows/docs.yml`](.github/workflows/docs.yml) |
 
 Changing one of them here changes every site, the next time the site updates the module.
@@ -51,6 +54,18 @@ Changing one of them here changes every site, the next time the site updates the
 4. In the repository settings, set **Pages → Source** to **GitHub Actions**.
 
 The site is then served from `https://<owner>.github.io/<repository>/`, deployed from an Actions artifact: there is no `gh-pages` branch to maintain.
+
+## SEO
+
+Each site provides:
+
+- `params.description`: the home page description, 50 to 160 characters.
+- A `description` in the front matter of **every** content page. The docs workflow fails when one is missing (`require-descriptions`), and warns when one is outside 50 to 160 characters. Generated pages must write one too.
+- `params.images`: a 1200x630 social preview, without a leading slash (`images/social.png`), rendered with `node tools/social-card.mjs --title ... --tagline ... --url ... --out docs/static/images/social.png`. Sites without one fall back to the shared default card.
+- `params.project`: `repository`, `license` and `programmingLanguage`, published as JSON-LD (`SoftwareSourceCode`) on the home page. Every other page is published as a `TechArticle` of the site.
+- Optionally `params.googleSiteVerification`, the token of a Google Search Console HTML tag verification.
+
+The theme also lists the other projects in the footer (`params.brand.projects`), and serves a `robots.txt` pointing at the sitemap. Crawlers only read `robots.txt` at the root of a domain, so for project sites under `boxboxjason.github.io/<repository>/`, submit each `sitemap.xml` in Google Search Console instead.
 
 ## Updating
 

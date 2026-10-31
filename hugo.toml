@@ -6,9 +6,31 @@
     path = "github.com/imfing/hextra"
 
 [params]
+  # Social preview used when a site sets no params.images of its own. Image paths take no
+  # leading slash, or Hugo resolves them against the domain root instead of the site's sub path.
+  images = ["images/social-default.png"]
   [params.brand]
     name = "BoxBoxJason"
     homeURL = "https://github.com/boxboxjason"
+    # Listed in the footer of every site, except the site itself.
+    [[params.brand.projects]]
+      name = "gitlab-sync"
+      url = "https://boxboxjason.github.io/gitlab-sync/"
+    [[params.brand.projects]]
+      name = "GitLab Achievements"
+      url = "https://boxboxjason.github.io/gitlab-achievements/"
+    [[params.brand.projects]]
+      name = "Achievements for VS Code"
+      url = "https://boxboxjason.github.io/achievements/"
+    [[params.brand.projects]]
+      name = "SonarQube Go client"
+      url = "https://boxboxjason.github.io/sonarqube-client-go/"
+    [[params.brand.projects]]
+      name = "GitHub Insights"
+      url = "https://boxboxjason.github.io/github-insights/"
+    [[params.brand.projects]]
+      name = "Instagram Stats"
+      url = "https://boxboxjason.github.io/instagram-stats/"
   [params.navbar]
     displayTitle = true
     displayLogo = false

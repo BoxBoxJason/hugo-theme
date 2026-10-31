@@ -29,6 +29,10 @@ on:
         description: Also check the links pointing outside of the site (slow, and sensitive to third-party outages).
         type: boolean
         default: false
+      require-descriptions:
+        description: Fail when a content page has no `description` in its front matter (used for search results and link previews).
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -65,6 +69,30 @@ jobs:
           echo "${HUGO_SHA256}  ${RUNNER_TEMP}/${archive}" | sha256sum --check --strict
           sudo tar --extract --gzip --file "${RUNNER_TEMP}/${archive}" --directory /usr/local/bin hugo
           hugo version
+
+      - name: Check page descriptions
+        if: inputs.require-descriptions
+        shell: python
+        env:
+          CONTENT_DIR: ${{ inputs.working-directory }}/content
+        run: |
+          import os, pathlib, re, sys
+
+          # Search engines show roughly 50 to 160 characters of a description.
+          MIN_LENGTH, MAX_LENGTH = 50, 160
+          missing = 0
+          for page in sorted(pathlib.Path(os.environ["CONTENT_DIR"]).rglob("*.md")):
+              text = page.read_text(encoding="utf-8")
+              match = re.match(r"^(---|\+\+\+)\s*\n(.*?)\n\1\s*(\n|$)", text, re.S)
+              front_matter = match.group(2) if match else ""
+              value = re.search(r"^description\s*[:=]\s*(.*)$", front_matter, re.M)
+              description = value.group(1).strip().strip("\"'") if value else ""
+              if not description:
+                  missing += 1
+                  print(f"::error file={page}::missing a description in its front matter")
+              elif not MIN_LENGTH <= len(description) <= MAX_LENGTH:
+                  print(f"::warning file={page}::description is {len(description)} characters, aim for {MIN_LENGTH} to {MAX_LENGTH}")
+          sys.exit(1 if missing else 0)
 
       - name: Build the site
         run: >-

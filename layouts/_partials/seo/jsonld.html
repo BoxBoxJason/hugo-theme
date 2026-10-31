@@ -1,0 +1,29 @@
+{{- /*
+  Structured data (JSON-LD) describing the project on the home page, and each documentation
+  page as a technical article of that project. Driven by params.project and params.brand.
+*/ -}}
+{{- $brand := site.Params.brand -}}
+{{- $author := dict "@type" "Person" "name" $brand.name "url" $brand.homeURL -}}
+{{- $description := partial "utils/page-description.html" . | strings.TrimSpace -}}
+{{- $image := "" -}}
+{{- with .Params.images | default site.Params.images -}}
+  {{- $image = index . 0 | strings.TrimPrefix "/" | absURL -}}
+{{- end -}}
+{{- $data := dict -}}
+{{- if .IsHome -}}
+  {{- $data = dict "@context" "https://schema.org" "@type" "SoftwareSourceCode" "name" site.Title "url" .Permalink "description" $description "author" $author -}}
+  {{- with site.Params.project -}}
+    {{- with .repository }}{{ $data = merge $data (dict "codeRepository" .) }}{{ end -}}
+    {{- with .license }}{{ $data = merge $data (dict "license" .) }}{{ end -}}
+    {{- with .programmingLanguage }}{{ $data = merge $data (dict "programmingLanguage" .) }}{{ end -}}
+    {{- with .runtimePlatform }}{{ $data = merge $data (dict "runtimePlatform" .) }}{{ end -}}
+  {{- end -}}
+{{- else if .IsPage -}}
+  {{- $website := dict "@type" "WebSite" "name" site.Title "url" site.Home.Permalink -}}
+  {{- $data = dict "@context" "https://schema.org" "@type" "TechArticle" "headline" .Title "url" .Permalink "description" $description "author" $author "isPartOf" $website "inLanguage" site.Language.Locale -}}
+  {{- with .Lastmod }}{{ $data = merge $data (dict "dateModified" (.Format "2006-01-02T15:04:05Z07:00")) }}{{ end -}}
+{{- end -}}
+{{- if $data -}}
+  {{- with $image }}{{ $data = merge $data (dict "image" .) }}{{ end }}
+<script type="application/ld+json">{{ $data | jsonify | safeJS }}</script>
+{{- end -}}

@@ -36,5 +36,16 @@ enableRobotsTXT = true
       icon = "github"
 
 [params]
+  # Home page meta description and search result snippet: 50 to 160 characters.
+  description = "my-project does one thing well: say what, for whom, in one sentence."
+  # Social preview (1200x630), generated with tools/social-card.mjs. No leading slash.
+  images = ["images/social.png"]
+  # Optional: the token of a Google Search Console "HTML tag" verification.
+  # googleSiteVerification = "..."
+  # Structured data (JSON-LD) for the home page.
+  [params.project]
+    repository = "https://github.com/boxboxjason/my-project"
+    license = "https://opensource.org/license/mit"
+    programmingLanguage = "Go"
   [params.editURL]
     base = "https://github.com/boxboxjason/my-project/edit/main/docs/content"

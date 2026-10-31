@@ -1,0 +1,4 @@
+{{- with site.Params.googleSiteVerification }}
+<meta name="google-site-verification" content="{{ . }}">
+{{- end }}
+{{- partial "seo/jsonld.html" . -}}

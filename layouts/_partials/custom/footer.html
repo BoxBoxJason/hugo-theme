@@ -5,9 +5,9 @@
     {{- $others = $others | append . -}}
   {{- end -}}
 {{- end -}}
-<div class="hx:flex hx:flex-col hx:gap-3 hx:py-8 hx:text-sm">
+<div class="brand-footer">
   {{- with $others }}
-  <nav aria-label="Other projects" class="hx:flex hx:flex-wrap hx:justify-center hx:gap-x-3 hx:gap-y-1 hx:sm:justify-start">
+  <nav aria-label="Other projects" class="brand-projects">
     <span>More projects:</span>
     {{- range . }}
     <a href="{{ .url }}">{{ .name }}</a>

@@ -29,3 +29,25 @@ samp {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
+/* Footer layout and list of the other projects. Plain CSS: Hextra only ships the utility classes it uses itself. */
+.brand-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem 0;
+  font-size: 0.875rem;
+}
+
+.brand-projects {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .brand-projects {
+    justify-content: flex-start;
+  }
+}
